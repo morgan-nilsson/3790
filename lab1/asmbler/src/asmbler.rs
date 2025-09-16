@@ -61,64 +61,6 @@ impl Asmbler {
             .map(|line| line.trim())
             .collect();
 
-        let mut macros: HashMap<String, Vec<String>> = HashMap::new();
-
-        // first pass: collect macros and delete macro definitions from lines
-        let mut i = 0;
-        loop {
-            if i >= lines.len() {
-                break;
-            }
-
-            let line = lines[i];
-            let parts = line.split_whitespace().collect::<Vec<&str>>();
-            if parts[0] == "STARTMACRO" {
-                let mut macro_body: Vec<String> = Vec::new();
-                loop {
-                    if i >= lines.len() - 1 {
-                        result.errors.push((AsmblerError::SyntaxError, line.to_string(), i));
-                        break;
-                    }
-                    lines.remove(i);
-                    if lines[i].starts_with("ENDMACRO") {
-                        lines.remove(i);
-                        break;
-                    }
-                    macro_body.push(lines[i].to_string());
-                }
-                macros.insert(parts[1].to_string(), macro_body);
-            }
-            i += 1;
-        }
-
-        // second pass: expand macros
-        let mut i = 0;
-        loop {
-            if i >= lines.len() {
-                break;
-            }
-            let line = lines[i];
-            let parts = line.split_whitespace().collect::<Vec<&str>>();
-            if parts[0] == "MACRO" {
-
-                let macro_name = parts[1];
-                let macro_body = macros.get(macro_name);
-                if macro_body.is_none() {
-                    result.errors.push((AsmblerError::MACRONotDefined, line.to_string(), i));
-                    i += 1;
-                    continue;
-                }
-
-                let macro_body = macro_body.unwrap();
-                lines.remove(i);
-                for (j, macro_line) in macro_body.iter().enumerate() {
-                    lines.insert(i + j, macro_line);
-                }
-                continue;
-            }
-            i += 1;
-        }
-
         for i in 0..lines.len() {
             let line = lines[i];
             // skip comments

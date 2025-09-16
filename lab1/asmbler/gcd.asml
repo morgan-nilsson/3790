@@ -1,0 +1,29 @@
+; while a ≠ b 
+;     if a > b
+;         a := a − b
+;     else
+;         b := b − a
+; return a
+
+read [80]
+read [81]
+dw [82] -1
+
+top:
+mov [80] acc
+sub acc [81]
+
+jez over
+
+
+jlz else
+mov [80] acc
+jmp top
+
+else:
+; [82] = -1
+mul acc [82]
+jmp top
+
+over:
+write [80]

@@ -1,0 +1,74 @@
+; 77 = array base locaction
+; 78 = array buffer value
+; 79 = max location
+; 80 - array base
+read [79]
+mov acc [79]
+dw [77] 79
+add acc [77]
+mov [79] acc
+
+mov acc 80
+swap
+read_top:
+
+read [78]
+mov acc [78]
+
+mov [idx] acc
+
+
+swap
+mov [78] acc
+
+sub acc [79]
+jez read_end
+mov acc [78]
+swap
+inc
+jmp read_top
+
+read_end:
+
+; 79 = max location
+; 78 = buffer
+; 77 = base location
+; 76 = max
+; 75 = min
+
+dw [76] -9999
+dw [75] 9999
+
+mov acc 80
+swap
+
+greater:
+mov acc [idx]
+sub acc [76]
+jlz less
+; else [idx] > max
+mov acc [idx]
+mov [76] acc
+
+less:
+mov acc [75]
+sub acc [idx]
+jlz loop_inc
+; else [idx] > min
+mov acc [idx]
+mov [75] acc
+
+loop_inc:
+swap
+mov [78] acc
+sub acc [79]
+jez end_loop
+mov acc [78]
+swap
+inc
+jmp greater
+
+
+end_loop:
+write [76]
+write [75]

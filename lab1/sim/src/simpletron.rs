@@ -1,4 +1,4 @@
-use std::{char::MAX, f32::MIN};
+use std::io::Write;
 
 const MEMORY_PAGES: usize = 100;
 const MEMORY_WORDS_PER_PAGE: usize = 100;
@@ -116,6 +116,9 @@ impl Simpletron {
     pub fn execute(&mut self, flags: Vec<&str>) {
 
         loop {
+            if flags.contains(&"-d") {
+                println!("DEBUG: IP: {}, IR: {:+06}, ACC: {:+06}, IDX: {:+06}", self.ip, self.get_memory(self.ip), self.acc, self.ix);
+            }
             let instr = self.get_memory(self.ip);
 
             self.ip += 1;
@@ -191,10 +194,12 @@ fn calculate_page_address(index: i32) -> (i32, i32) {
 // READ=10 - Read a word from the terminal into a location whose address is the operand
 fn read(simpletron: &mut Simpletron, operand: i32) {
 
+    print!("? ");
+    std::io::stdout().flush().expect("Failed to flush stdout");
     let mut input = String::new();
     std::io::stdin().read_line(&mut input).expect("Failed to read line");
     let input = input.trim();
-    println!("in:|{}|", input);
+    print!("\n");
     
     match input.trim().parse::<i32>() {
         Ok(value) => {
@@ -210,7 +215,7 @@ fn read(simpletron: &mut Simpletron, operand: i32) {
 fn write(simpletron: &mut Simpletron, operand: i32) {
 
     let value = simpletron.get_memory(operand);
-    print!("{}", value);
+    print!("=> {}\n", value);
 
 }
 

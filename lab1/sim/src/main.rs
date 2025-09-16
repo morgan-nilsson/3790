@@ -73,7 +73,7 @@ fn main() {
     simpletron.add_extension_instruction(12, write_char_extention);
     simpletron.add_extension_instruction(0, assert_extention);
 
-    simpletron.execute(vec![]);
+    simpletron.execute(vec![""]);
 
 }
 
