@@ -10,7 +10,7 @@ const MIN_WORD: i32 = -999999;
 
 // i32 = operand
 type InstHandler = fn(&mut Simpletron, i32);
-const INSTR_HANDLER_COUNT: usize = 46;
+const INSTR_HANDLER_COUNT: usize = 50;
 
 pub struct Simpletron {
     memory: [[i32; MEMORY_WORDS_PER_PAGE]; MEMORY_PAGES],
@@ -39,16 +39,16 @@ impl Simpletron {
             ip: 0,
             ir: 0,
             handlers: [
-                None, None, None, None, None,                                               // 0
-                None, None, None, None, None,                                               // 5
-                Some(read), Some(write), None, None, None,                                  // 10
-                None, None, None, None, None,                                               // 15
-                Some(load), Some(load_im), Some(load_x), Some(load_idx), None,              // 20
-                Some(store), Some(store_idx), None, None, None,                             // 25
-                Some(add), Some(add_x), Some(sub), Some(sub_x), Some(div),                  // 30
-                Some(div_x), Some(mul), Some(mul_x), Some(inc), Some(dec),                  // 35
-                Some(branch), Some(branch_neg), Some(branch_zero), Some(swap), None,        // 40
-                Some(halt)                                                                  // 45
+                None,           None,               None,               None,           None,       // 0
+                None,           None,               None,               None,           None,       // 5
+                Some(read),     Some(write),        None,               None,           None,       // 10
+                None,           None,               None,               None,           None,       // 15
+                Some(load),     Some(load_im),      Some(load_x),       Some(load_idx), None,       // 20
+                Some(store),    Some(store_idx),    None,               None,           None,       // 25
+                Some(add),      Some(add_x),        Some(sub),          Some(sub_x),    Some(div),  // 30
+                Some(div_x),    Some(mul),          Some(mul_x),        Some(inc),      Some(dec),  // 35
+                Some(branch),   Some(branch_neg),   Some(branch_zero),  Some(swap),     None,       // 40
+                Some(halt),     None,               None,               None,           None        // 45
             ]
         };
 
@@ -62,7 +62,6 @@ impl Simpletron {
         }
 
         simple
-
     }
 
     pub fn get_acc(&self) -> i32 {
@@ -121,7 +120,7 @@ impl Simpletron {
             }
             let instr = self.get_memory(self.ip);
 
-            self.ip += 1;
+            self.set_ip(self.ip + 1);
 
             let opcode = read_opcode(instr);
             let operand = read_operand(instr);
@@ -129,25 +128,22 @@ impl Simpletron {
             if let Some(handler) = self.handlers[opcode as usize] {
                 handler(self, operand);
             } else {
-                eprintln!("Error: Invalid opcode {}", opcode);
+                eprintln!("Error: Invalid opcode {}\nStill going", opcode);
             }
         }
     }
 
     pub fn dump_regs(&self) {
         println!("REGISTERS:\n");
-        println!("Accumulator:          {:+06}", self.acc);
-        println!("InstructionCounter:   {:+06}", self.ip);
-        println!("IndexRegister:        {:+06}", self.ix);
-        println!("operationCode:            {:+02}", read_opcode(self.ir));
-        println!("operand:                {:+04}", read_operand(self.ir));
+        println!("Accumulator:          {:+07}", self.acc);
+        println!("InstructionCounter:   {:+07}", self.ip);
+        println!("IndexRegister:        {:+07}", self.ix);
+        println!("operationCode:             {:02}", read_opcode(self.ir));
+        println!("operand:                {:+05}", read_operand(self.ir));
     }
 
     pub fn dump_memory(&self, start_page: usize, end_page: usize) {
-        if start_page >= MEMORY_PAGES || end_page >= MEMORY_PAGES || start_page > end_page {
-            eprintln!("Error: Invalid memory range specified for dump.");
-            return;
-        }
+        debug_assert!(start_page < MEMORY_PAGES && start_page <= end_page, "Invalid memory range for dump: {} to {}", start_page, end_page);
 
         println!("MEMORY");
         for page in start_page..=end_page {
@@ -194,21 +190,27 @@ fn calculate_page_address(index: i32) -> (i32, i32) {
 // READ=10 - Read a word from the terminal into a location whose address is the operand
 fn read(simpletron: &mut Simpletron, operand: i32) {
 
-    print!("? ");
-    std::io::stdout().flush().expect("Failed to flush stdout");
-    let mut input = String::new();
-    std::io::stdin().read_line(&mut input).expect("Failed to read line");
-    let input = input.trim();
-    print!("\n");
-    
-    match input.trim().parse::<i32>() {
-        Ok(value) => {
-            simpletron.set_memory(operand, value);
-        },
-        Err(_) => {
-            eprintln!("Error: Invalid input. Please enter a valid integer.");
+
+    loop {
+
+        print!("? ");
+        std::io::stdout().flush().expect("Failed to flush stdout");
+        let mut input = String::new();
+        std::io::stdin().read_line(&mut input).expect("Failed to read line");
+        let input = input.trim();
+        print!("\n");
+
+        match input.trim().parse::<i32>() {
+            Ok(value) => {
+                simpletron.set_memory(operand, value);
+                break;
+            },
+            Err(_) => {
+                eprintln!("Error: Invalid input. Please enter a valid integer.");
+            }
         }
     }
+    
 }
 
 // WRITE=11 - Write a word from the location whose address is the operand to the terminal

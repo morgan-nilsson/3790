@@ -8,7 +8,7 @@ fn main() {
 
     println!("*** Welcome to Simpletron V2! ***");
     println!("***");
-    print!("Do you have a file that contains your SML program (Y/N) ?");
+    print!("Do you have a file that contains your SML program (Y/N) ? ");
     std::io::stdout().flush().expect("Failed to flush stdout");
 
     let input = std::io::stdin();

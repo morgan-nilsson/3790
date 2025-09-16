@@ -4,6 +4,8 @@
 ; 80 - array base
 read [79]
 mov acc [79]
+jlz trap
+jez trap
 dw [77] 79
 add acc [77]
 mov [79] acc
@@ -72,3 +74,8 @@ jmp greater
 end_loop:
 write [76]
 write [75]
+
+hlt
+
+trap:
+hlt

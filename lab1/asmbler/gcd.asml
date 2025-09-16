@@ -10,11 +10,11 @@ read [81]
 dw [82] -1
 
 top:
-mov [80] acc
+mov acc [80]
 sub acc [81]
+; acc = a - b
 
 jez over
-
 
 jlz else
 mov [80] acc
@@ -23,6 +23,7 @@ jmp top
 else:
 ; [82] = -1
 mul acc [82]
+mov [81] acc
 jmp top
 
 over:
