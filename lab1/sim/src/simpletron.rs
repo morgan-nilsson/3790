@@ -28,6 +28,8 @@ pub struct Simpletron {
 
     // instruction handlers
     handlers: [Option<InstHandler>; INSTR_HANDLER_COUNT],
+
+    is_halted: bool,
 }
 
 impl Simpletron {
@@ -49,7 +51,8 @@ impl Simpletron {
                 Some(div_x),    Some(mul),          Some(mul_x),        Some(inc),      Some(dec),  // 35
                 Some(branch),   Some(branch_neg),   Some(branch_zero),  Some(swap),     None,       // 40
                 Some(halt),     None,               None,               None,           None        // 45
-            ]
+            ],
+            is_halted: false,
         };
 
         // Copy instructions into memory
@@ -62,6 +65,27 @@ impl Simpletron {
         }
 
         simple
+    }
+
+    pub fn execute_step(&mut self) {
+
+        if self.is_halted {
+            return;
+        }
+
+        let instr = self.get_memory(self.ip);
+
+        self.set_ip(self.ip + 1);
+
+        let opcode = read_opcode(instr);
+        let operand = read_operand(instr);
+
+        if let Some(handler) = self.handlers[opcode as usize] {
+            handler(self, operand);
+        } else {
+            eprintln!("Error: Invalid opcode {}\nStill going", opcode);
+        }
+
     }
 
     pub fn get_acc(&self) -> i32 {
@@ -110,27 +134,6 @@ impl Simpletron {
         let (page, offset) = calculate_page_address(index);
 
         self.memory[page as usize][offset as usize] = value;
-    }
-
-    pub fn execute(&mut self, flags: Vec<&str>) {
-
-        loop {
-            if flags.contains(&"-d") {
-                println!("DEBUG: IP: {}, IR: {:+06}, ACC: {:+06}, IDX: {:+06}", self.ip, self.get_memory(self.ip), self.acc, self.ix);
-            }
-            let instr = self.get_memory(self.ip);
-
-            self.set_ip(self.ip + 1);
-
-            let opcode = read_opcode(instr);
-            let operand = read_operand(instr);
-
-            if let Some(handler) = self.handlers[opcode as usize] {
-                handler(self, operand);
-            } else {
-                eprintln!("Error: Invalid opcode {}\nStill going", opcode);
-            }
-        }
     }
 
     pub fn dump_regs(&self) {
@@ -393,5 +396,5 @@ fn halt(simpletron: &mut Simpletron, operand: i32) {
     let end_page = (operand % 100) as usize;
     simpletron.dump_memory(start_page, end_page);
     println!("Program halted.");
-    loop {}
+    simpletron.is_halted = true;
 }
