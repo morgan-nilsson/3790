@@ -1,0 +1,152 @@
+; READ / WRITE behaviour is not tested here
+; This assumes the runner has an extention 99 that can do assert acc == idx and acc == literal
+
+; LOAD = 20
+dw [401] 20
+mov acc [401]
+assert 20
+
+; LOADIM = 21
+mov acc 21
+assert 21
+
+; LOADX = 22
+dw [402] 22
+mov idx [402]
+swap
+assert 22
+
+; LOADIDX = 23
+dw [403] 23
+mov acc 403
+swap
+mov acc [idx]
+assert 23
+
+; STORE = 25
+mov acc 25
+mov [404] acc
+mov acc [404]
+assert 25
+
+; STOREIDX = 26
+mov acc 405
+swap
+mov acc 26
+mov [idx] acc
+mov acc [405]
+assert 26
+
+; ADD = 30
+dw [406] 25
+mov acc 5
+add acc [406]
+assert 30
+
+; ADDX = 31
+dw [407] 27
+mov acc 407
+swap
+mov acc 4
+add acc [idx]
+assert 31
+
+; SUB = 32
+dw [408] 8
+mov acc 40
+sub acc [408]
+assert 32
+
+; SUBX = 33
+dw [409] 2
+mov acc 409
+swap
+mov acc 35
+sub acc [idx]
+assert 33
+
+; DIV = 34
+dw [410] 2
+mov acc 68
+div acc [410]
+assert 34
+
+; DIVX = 35
+dw [411] 4
+mov acc 411
+swap
+mov acc 140
+div acc [idx]
+assert 35
+
+; MUL = 36
+dw [412] 6
+mov acc 6
+mul acc [412]
+assert 36
+
+; MULX = 37
+dw [413] 1
+mov acc 413
+swap
+mov acc 37
+mul acc [idx]
+assert 37
+
+; INC = 38
+mov acc 37
+swap
+inc
+swap
+assert 38
+
+; DEC = 39
+mov acc 40
+swap
+dec
+swap
+assert 39
+
+; BRANCH = 40
+jmp after_branch
+mov acc -1
+assert 40
+after_branch:
+
+; BRANCHNEG = 41
+; This should branch
+mov acc -1
+jlz after_branchneg
+assert 41
+after_branchneg:
+
+; This should not branch
+mov acc 1
+jlz trap
+
+; BRANCHZERO = 42
+; This should branch
+mov acc 0
+jez after_branchzero
+assert 42
+after_branchzero:
+
+; This should not branch
+mov acc 1
+jez trap
+
+
+; SWAP = 43
+mov acc -43
+swap
+mov acc 43
+swap
+assert -43
+swap
+assert 43
+
+; HALT = 44
+hlt
+
+trap:
+assert 69
