@@ -23,3 +23,8 @@ if operand == 0
     then assert ACC == IX
 else if operand != 0
     then assert ACC == operand
+
+There are some premade simpleton programs.
+gcd.sml - finds the gcd of two numbers
+mm.sml - finds the max and min of a list of numbers where the first number is the length of the list
+test.sml - a test program for each instruction that uses the assert instruction

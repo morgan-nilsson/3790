@@ -80,10 +80,18 @@ impl Simpletron {
         let opcode = read_opcode(instr);
         let operand = read_operand(instr);
 
+        if opcode < 0 || opcode >= INSTR_HANDLER_COUNT as i32 {
+            eprintln!("Error: Invalid opcode {}\nHalting", opcode);
+            self.is_halted = true;
+            return;
+        }
+
         if let Some(handler) = self.handlers[opcode as usize] {
             handler(self, operand);
         } else {
-            eprintln!("Error: Invalid opcode {}\nStill going", opcode);
+            eprintln!("Error: Unimplemented opcode {}\nHalting", opcode);
+            self.is_halted = true;
+            return;
         }
 
     }
@@ -94,7 +102,11 @@ impl Simpletron {
 
     fn set_acc(&mut self, value: i32) {
 
-        assert!(value > MIN_WORD && value < MAX_WORD, "Error: Accumulator overflow/underflow with value {}", value);
+        if value < MIN_WORD || value > MAX_WORD {
+            eprintln!("Error: Accumulator overflow/underflow with value {}\nHalting", value);
+            self.is_halted = true;
+            return;
+        }
 
         self.acc = value;
     }
@@ -105,21 +117,33 @@ impl Simpletron {
 
     fn set_idx(&mut self, value: i32) {
 
-        assert!(value > MIN_WORD && value < MAX_WORD, "Error: Index register overflow/underflow with value {}", value);
+        if value < MIN_WORD || value > MAX_WORD {
+            eprintln!("Error: Index register overflow/underflow with value {}\nHalting", value);
+            self.is_halted = true;
+            return;
+        }
 
         self.ix = value;
     }
 
     fn set_ip(&mut self, value: i32) {
 
-        assert!(value > 0 && value < MAX_MEMORY as i32, "Error: Instruction pointer out of bounds with value {}", value);
+        if value < 0 || value >= MAX_MEMORY as i32 {
+            eprintln!("Error: Instruction pointer out of bounds with value {}\nHalting", value);
+            self.is_halted = true;
+            return;
+        }
 
         self.ip = value;
     }
 
-    pub fn get_memory(&self, index: i32) -> i32 {
+    pub fn get_memory(&mut self, index: i32) -> i32 {
 
-        assert!(index >= 0 && index < (MAX_MEMORY) as i32, "Get index out of bounds: {}", index);
+        if index < 0 || index >= MAX_MEMORY as i32 {
+            eprintln!("Error: Memory access out of bounds at address {}\nHalting", index);
+            self.is_halted = true;
+            return 0;
+        }
 
         let (page, offset) = calculate_page_address(index);
 
@@ -128,8 +152,17 @@ impl Simpletron {
 
     pub fn set_memory(&mut self, index: i32, value: i32) {
 
-        assert!(index >= 0 && index < (MAX_MEMORY) as i32, "Set index out of bounds: {}", index);
-        assert!(value >= MIN_WORD && value <= MAX_WORD, "Value out of bounds: {}", value);
+        if index < 0 || index >= MAX_MEMORY as i32 {
+            eprintln!("Error: Memory access out of bounds at address {}\nHalting", index);
+            self.is_halted = true;
+            return;
+        }
+
+        if value < MIN_WORD || value > MAX_WORD {
+            eprintln!("Error: Memory value overflow/underflow with value {}\nHalting", value);
+            self.is_halted = true;
+            return;
+        }
 
         let (page, offset) = calculate_page_address(index);
 
@@ -145,8 +178,12 @@ impl Simpletron {
         println!("operand:                {:+05}",      read_operand(self.ir));
     }
 
-    pub fn dump_memory(&self, start_page: usize, end_page: usize) {
-        debug_assert!(start_page < MEMORY_PAGES && start_page <= end_page, "Invalid memory range for dump: {} to {}", start_page, end_page);
+    pub fn dump_memory(&mut self, start_page: usize, end_page: usize) {
+        if start_page >= MEMORY_PAGES || end_page >= MEMORY_PAGES || start_page > end_page {
+            eprintln!("Error: Invalid memory range for dump: {} to {}", start_page, end_page);
+            self.is_halted = true;
+            return;
+        }
 
         for page in start_page..=end_page {
             println!("Page {}:", page);
@@ -167,7 +204,7 @@ impl Simpletron {
     }
 
     pub fn add_extension_instruction(&mut self, index: u32, handler: InstHandler) {
-        debug_assert!((index as usize) < INSTR_HANDLER_COUNT, "Instruction index out of bounds: {}", index);
+        assert!((index as usize) < INSTR_HANDLER_COUNT, "Instruction index out of bounds: {}", index);
         self.handlers[index as usize] = Some(handler);
     }
 }
@@ -303,7 +340,11 @@ fn sub_x(simpletron: &mut Simpletron, _: i32) {
 fn div(simpletron: &mut Simpletron, operand: i32) {
 
     let value = simpletron.get_memory(operand);
-    assert!(value != 0, "Error: Division by zero at address {}", operand);
+    if value == 0 {
+        eprintln!("Error: Division by zero at address {}\nHalting", operand);
+        simpletron.is_halted = true;
+        return;
+    }
     simpletron.set_acc(simpletron.get_acc() / value);
 
 }
@@ -312,7 +353,11 @@ fn div(simpletron: &mut Simpletron, operand: i32) {
 fn div_x(simpletron: &mut Simpletron, _: i32) {
 
     let value = simpletron.get_memory(simpletron.ix);
-    assert!(value != 0, "Error: Division by zero at address in index register {}", simpletron.ix);
+    if value == 0 {
+        eprintln!("Error: Division by zero at address in index register {}\nHalting", simpletron.ix);
+        simpletron.is_halted = true;
+        return;
+    }
 
     simpletron.set_acc(simpletron.get_acc() / value);
 
