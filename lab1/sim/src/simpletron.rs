@@ -138,17 +138,16 @@ impl Simpletron {
 
     pub fn dump_regs(&self) {
         println!("REGISTERS:\n");
-        println!("Accumulator:          {:+07}", self.acc);
-        println!("InstructionCounter:   {:+07}", self.ip);
-        println!("IndexRegister:        {:+07}", self.ix);
-        println!("operationCode:             {:02}", read_opcode(self.ir));
-        println!("operand:                {:+05}", read_operand(self.ir));
+        println!("Accumulator:          {:+07}",        self.acc);
+        println!("InstructionCounter:   {:+07}",        self.ip);
+        println!("IndexRegister:        {:+07}",        self.ix);
+        println!("operationCode:             {:02}",    read_opcode(self.ir));
+        println!("operand:                {:+05}",      read_operand(self.ir));
     }
 
     pub fn dump_memory(&self, start_page: usize, end_page: usize) {
         debug_assert!(start_page < MEMORY_PAGES && start_page <= end_page, "Invalid memory range for dump: {} to {}", start_page, end_page);
 
-        println!("MEMORY");
         for page in start_page..=end_page {
             println!("Page {}:", page);
             println!("         0       1       2       3       4       5       6       7       8       9");
@@ -192,7 +191,6 @@ fn calculate_page_address(index: i32) -> (i32, i32) {
 
 // READ=10 - Read a word from the terminal into a location whose address is the operand
 fn read(simpletron: &mut Simpletron, operand: i32) {
-
 
     loop {
 
@@ -392,8 +390,8 @@ fn swap(simpletron: &mut Simpletron, _: i32) {
 // HALT=45 - Halt program dump register values and a range of pages. The starting page of the range is stored as the top 2 digits of the operand and the last page as the least significant 2 digits (core dump). 
 fn halt(simpletron: &mut Simpletron, operand: i32) {
     simpletron.dump_regs();
-    let start_page = (operand / 100) as usize;
-    let end_page = (operand % 100) as usize;
+    let start_page = (operand / 100).abs() as usize;
+    let end_page = (operand % 100).abs() as usize;
     simpletron.dump_memory(start_page, end_page);
     println!("Program halted.");
     simpletron.is_halted = true;

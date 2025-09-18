@@ -602,3 +602,53 @@ fn format_instruction(opcode: u32, operand: i32) -> String {
     let sign = if operand < 0 { "-" } else { "+" };
     format!("{}{:0>2}{:0>4}", sign, opcode, operand.abs())
 }
+
+struct Claim {
+    pub attacks: Vec<Claim>,
+    pub defends: Vec<Claim>,
+    pub accepted: bool,
+    pub minAgree: usize,
+}
+
+fn canAccept(claim: Claim) -> bool {
+
+    // there are no attacks
+    if claim.attacks.is_empty() {
+        return true;
+    }
+
+    // I argree with enough defenses
+
+    return true;
+}
+
+fn isValidReson(reason: &str) -> bool {
+    return !reason.trim().is_empty();
+}
+
+fn canReject(claim: Claim, reason: &str) -> bool {
+
+    // there are no attacks
+    if claim.attacks.is_empty() {
+        return false;
+    }
+
+    // I disargree with enough defenses
+
+    // I must agree with at least one attack
+    let mut agrees_with_attack = false;
+    for sub_claim in claim.attacks {
+        if sub_claim.accepted {
+            agrees_with_attack = true;
+            break;
+        }
+    }
+
+    // I must have a valid reason
+    if !isValidReson(reason) {
+        return false;
+    }
+
+    return true;
+
+}

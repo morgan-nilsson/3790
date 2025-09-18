@@ -5,7 +5,6 @@ use std::io::Write;
 
 fn main() {
 
-
     println!("*** Welcome to Simpletron V2! ***");
     println!("***");
     print!("Do you have a file that contains your SML program (Y/N) ? ");
