@@ -1,7 +1,7 @@
 mod simpletron;
 
 use simpletron::Simpletron;
-use std::io::Write;
+use std::{io::Write, vec};
 
 fn main() {
 
@@ -51,11 +51,26 @@ fn main() {
 
     }
 
-    // if the line is empty fill zero
-    let instrs: Vec<i32> = src_lines.iter().map(|line| {
+    // do a first pass to remove blank lines, comments and "go"
+    let mut clean_lines = vec![];
+
+    for line in src_lines {
         if line.trim().is_empty() {
-            0
+            continue;
+        } else if line.trim().starts_with(";") {
+            continue;
+        } else if line.contains(";") {
+            let parts: Vec<&str> = line.splitn(2, ';').collect();
+            clean_lines.push(parts[0].to_string());
+        } else if line.to_lowercase() == "go" {
+            continue;
         } else {
+            clean_lines.push(line);
+        }
+    }
+
+    // if the line is empty fill zero
+    let instrs: Vec<i32> = clean_lines.iter().map(|line| {
             match line.trim().parse::<i32>() {
                 Ok(num) => num,
                 Err(_) => {
@@ -63,7 +78,6 @@ fn main() {
                     0
                 }
             }
-        }
     }).collect();
         
 
