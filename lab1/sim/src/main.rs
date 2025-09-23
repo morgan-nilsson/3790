@@ -69,7 +69,6 @@ fn main() {
         }
     }
 
-    // if the line is empty fill zero
     let instrs: Vec<i32> = clean_lines.iter().map(|line| {
             match line.trim().parse::<i32>() {
                 Ok(num) => num,
