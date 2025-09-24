@@ -83,7 +83,7 @@ fn main() {
     let mut simpletron = Simpletron::new(instrs);
 
     simpletron.add_extension_instruction(12, write_char_extention);
-    simpletron.add_extension_instruction(0, assert_extention);
+    simpletron.add_extension_instruction(1, assert_extention);
 
     loop {
 

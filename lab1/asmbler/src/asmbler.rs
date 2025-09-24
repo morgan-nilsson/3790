@@ -518,7 +518,7 @@ impl Asmbler {
                 }
                 "assert" => {
                     if parts.len() == 1 {
-                        result_lines.push(format_instruction(0, 0));
+                        result_lines.push(format_instruction(1, 0));
                     } else if parts.len() == 2 {
                         let lit = parse_lit(parts[1]);
                         if lit.is_err() {
@@ -526,7 +526,7 @@ impl Asmbler {
                             continue;
                         }
                         let lit = lit.unwrap();
-                        result_lines.push(format_instruction(0, lit));
+                        result_lines.push(format_instruction(1, lit));
                     } else {
                         result.errors.push((AsmblerError::SyntaxError, line.to_string(), i));
                         continue;
