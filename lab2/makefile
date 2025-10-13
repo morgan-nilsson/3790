@@ -1,6 +1,5 @@
 CC=gcc
 CC_FLAGS=-Wall -Wextra
-LD=ld
 LDFLAGS=
 
 SRC_DRIR=src

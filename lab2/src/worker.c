@@ -3,6 +3,8 @@
 
 #include "header.h"
 
+#define DEBUG 0
+
 static inline int is_prime(int n) {
 
     if (n < 2) return 0;
@@ -23,6 +25,10 @@ int main(int argc, char *argv[]) {
     
     int len;
     char buf[BUFFER_SIZE];
+
+    #if DEBUG
+    fprintf(stdout, "Finding primes in range %s-%s", argv[1], argv[2]);
+    #endif
 
     len = snprintf(buf, BUFFER_SIZE, "data/%s-%s.txt", argv[1], argv[2]);
     if (len >= BUFFER_SIZE) {
@@ -74,6 +80,10 @@ int main(int argc, char *argv[]) {
         if (is_prime(i)) {
 
             fprintf(fp, "%d\n", i);
+
+            #if DEBUG
+            fprintf(stdout, "%s\n", i);
+            #endif
         }
     }
     fclose(fp);
