@@ -82,7 +82,7 @@ int main(int argc, char *argv[]) {
             fprintf(fp, "%d\n", i);
 
             #if DEBUG
-            fprintf(stdout, "%s\n", i);
+            fprintf(stdout, "%d\n", i);
             #endif
         }
     }
