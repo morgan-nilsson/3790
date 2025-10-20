@@ -1,0 +1,5 @@
+build/
+client.log
+server.log
+process_output.txt
+.vscode/
