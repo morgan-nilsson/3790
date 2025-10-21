@@ -15,7 +15,7 @@ void spin_lock_for_response(char* response, size_t response_size, FILE* fifo) {
 
         LOG_MESSAGE(LOG_LEVEL_INFO, "FIFO created or already exists.");
 
-        fifo = fopen(FIFO_S_NAME, "r+");
+        fifo = fopen(FIFO_S_NAME, "r");
         if (fifo == NULL) {
             LOG_MESSAGE(LOG_LEVEL_ERROR, "Failed to open FIFO for reading.");
             fclose(fifo);
@@ -66,14 +66,14 @@ int main(void) {
 
     LOG_MESSAGE(LOG_LEVEL_INFO, "FIFO created or already exists.");
 
-    FILE* fifo_w = fopen(FIFO_C_NAME, "w+");
+    FILE* fifo_w = fopen(FIFO_C_NAME, "w");
     if (fifo_w == NULL) {
         LOG_MESSAGE(LOG_LEVEL_ERROR, "Failed to open FIFO for writing.");
         CLOSE_LOGGER();
         return 1;
     }
 
-    FILE* fifo_r = fopen(FIFO_S_NAME, "r+");
+    FILE* fifo_r = fopen(FIFO_S_NAME, "r");
     if (fifo_r == NULL) {
         LOG_MESSAGE(LOG_LEVEL_ERROR, "Failed to open FIFO for reading.");
         fclose(fifo_w);

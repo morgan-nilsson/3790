@@ -69,7 +69,7 @@ int parse_and_handle_request(char* return_buffer, size_t return_buffer_size, con
             LOG_MESSAGE(LOG_LEVEL_INFO, return_buffer);
             return 1;
         } else {
-            user_is_authed = 0;
+            *user_is_authed = 0;
             snprintf(return_buffer, return_buffer_size, "-Invalid account\n");
             LOG_MESSAGE(LOG_LEVEL_WARNING, return_buffer);
             return 1;
@@ -137,7 +137,7 @@ int parse_and_handle_request(char* return_buffer, size_t return_buffer_size, con
 }
 
 Vec_t* parse_password_file(const char* filename) {
-    FILE* file = fopen(filename, "r");
+    FILE* file = fopen(filename, "r+");
     if (file == NULL) {
         LOG_MESSAGE(LOG_LEVEL_ERROR, "Failed to open password file.");
         return NULL;
