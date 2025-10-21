@@ -110,12 +110,12 @@ int parse_and_handle_request(char* return_buffer, size_t return_buffer_size, con
         int fork_value = fork();
         if (fork_value == 0) {
             execvp(args[0], &args[1]);
-            snprintf(return_buffer, return_buffer_size, "-EXEC failed\n");
+            snprintf(return_buffer, return_buffer_size, "-EXEC failed. Goodbye\n");
             LOG_MESSAGE(LOG_LEVEL_ERROR, return_buffer);
             return -1;
         } else if (fork_value < 0) {
             LOG_MESSAGE(LOG_LEVEL_ERROR, "Fork failed for EXEC command.");
-            snprintf(return_buffer, return_buffer_size, "-Server internal error fork\n");
+            snprintf(return_buffer, return_buffer_size, "-Server internal error fork. Goodbye\n");
             return 1;
         }
 
